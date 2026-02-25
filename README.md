@@ -56,6 +56,23 @@ pnpm dev
 # http://localhost:5173
 ```
 
+### 🖥️ 桌面版开发（macOS）
+
+桌面版基于 Tauri，沿用当前 Web UI 与图标资源，功能与样式保持一致。
+
+```bash
+# 1. 安装依赖
+pnpm install
+
+# 2. 启动桌面开发版
+pnpm desktop:dev
+
+# 3. 构建 macOS 安装包（.app/.dmg）
+pnpm desktop:build
+```
+
+> 说明：首次构建桌面版需要 Rust 工具链以及 Xcode Command Line Tools。
+
 ## 🛠️ 技术栈
 
 - **前端框架**: [Vue 3](https://vuejs.org/)
@@ -71,6 +88,7 @@ pnpm dev
 ```
 cover-magic/
 ├── public/             # 静态资源
+├── src-tauri/          # Tauri 桌面端（macOS）配置与 Rust 入口
 ├── src/
 │   ├── components/     # 组件
 │   │   ├── BackgroundPanel.vue    # 背景设置面板

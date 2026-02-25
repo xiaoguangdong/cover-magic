@@ -1,0 +1,27 @@
+[package]
+name = "cover-magic-desktop"
+version = "1.4.8"
+description = "Cover Magic desktop app"
+authors = ["baiwumm", "dongxg"]
+license = "MIT"
+repository = "https://github.com/baiwumm/cover-magic"
+edition = "2021"
+rust-version = "1.77.2"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+name = "cover_magic_desktop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.5.4", features = [] }
+
+[dependencies]
+base64 = "0.22"
+log = "0.4"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tauri = { version = "2.10.0", features = [] }
+tauri-plugin-dialog = "2"
+tauri-plugin-log = "2"

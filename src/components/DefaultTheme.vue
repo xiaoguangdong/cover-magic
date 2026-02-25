@@ -6,6 +6,8 @@
 </template>
 
 <script setup lang="ts">
+import { invoke } from "@tauri-apps/api/core";
+import { save } from "@tauri-apps/plugin-dialog";
 import { ref, onMounted, nextTick, watch } from "vue";
 
 import type { BackgroundConfig, IconConfig, TitleConfig, WatermarkConfig, ExportConfig } from "@/lib/type";
@@ -39,6 +41,10 @@ let iconImageCache: HTMLImageElement | null = null;
 let updateTimer: number | null = null;
 let isUpdating = false;
 let fontLoaded = false;
+
+const isRunningInTauri = () => {
+  return typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
+};
 
 /**
  * 获取带有回退选项的字体系列字符串
@@ -1248,14 +1254,43 @@ const exportImage = async (exportConfig: ExportConfig) => {
       : exportConfig.fileName;
   };
 
+  const outputFileName = `${getFinalFileName()}.${exportConfig.format}`;
+
   // 导出图片
   // 使用质量参数控制压缩程度，1.0表示原始质量
   const dataURL = exportCanvas.toDataURL(`image/${exportConfig.format}`, exportConfig.quality);
 
+  if (isRunningInTauri()) {
+    try {
+      const savePath = await save({
+        title: "保存封面图片",
+        defaultPath: outputFileName,
+        filters: [
+          {
+            name: exportConfig.format.toUpperCase(),
+            extensions: [exportConfig.format],
+          },
+        ],
+      });
+
+      if (!savePath) {
+        return;
+      }
+
+      await invoke("save_export_image", {
+        path: savePath,
+        dataUrl: dataURL,
+      });
+      return;
+    } catch (error) {
+      console.error("桌面端保存失败，回退到浏览器下载逻辑:", error);
+    }
+  }
+
   // 创建下载链接
   const link = document.createElement("a");
   link.href = dataURL;
-  link.download = `${getFinalFileName()}.${exportConfig.format}`;
+  link.download = outputFileName;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
